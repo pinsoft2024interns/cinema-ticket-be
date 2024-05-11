@@ -1,0 +1,12 @@
+package com.pinsoft.interns.Repository;
+
+import com.pinsoft.interns.Entity.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    List<Role> findByName(String name);
+}
