@@ -1,9 +1,12 @@
 package com.pinsoft.interns.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +27,8 @@ public class Movie {
 
     @Column(name = "description")
     private String description;
+
+    @OneToMany(mappedBy = "movie")
+    @JsonManagedReference
+    private List<Reservation> reservations;
 }
