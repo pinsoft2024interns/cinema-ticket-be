@@ -51,11 +51,37 @@
     <changeSet id="20240511-admin-insert" author="murat">
         <insert tableName="user-table">
             <column name="id" value="1" />
-            <column name="email" value="abc@abc.com" />
+            <column name="email" value="cinemaexample@gmail.com" />
             <column name="username" value="admin" />
             <column name="role_id" value="1" />
             <column name="password" value="admin" />
         </insert>
+    </changeSet>
+    <changeSet id="13052024-create-reservation-table" author="bekir">
+        <createTable tableName="reservation" schemaName="public">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_reservation"/>
+            </column>
+            <column name="seat_info" type="integer[]"/>
+            <column name="number_of_people" type="integer"/>
+            <column name="price" type="float"/>
+            <column name="release_date" type="timestamp"/>
+            <column name="is_cancel" type="boolean"/>
+            <column name="user_id" type="bigint"/>
+            <column name="movie_id" type="bigint"/>
+            <column name="hall_number" type="integer" />
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="reservation"
+                                 constraintName="user-reservation-fk"
+                                 referencedColumnNames="id" referencedTableName="user-table"
+
+        />
+        <addForeignKeyConstraint baseTableName="reservation" baseColumnNames="movie_id"
+                                 referencedTableName="movie-table" referencedColumnNames="id"
+                                 constraintName="movie-reservation-fk"
+        />
+        <addAutoIncrement tableName="reservation" columnName="id" columnDataType="bigint" startWith="500" incrementBy="1"/>
     </changeSet>
 
 </databaseChangeLog>
