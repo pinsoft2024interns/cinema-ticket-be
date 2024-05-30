@@ -35,7 +35,7 @@
                                  constraintName="user_role_fk"
                                  referencedColumnNames="id"
                                  referencedTableName="role-table"/>
-        <addAutoIncrement tableName="user-table" columnName="id" columnDataType="bigint" startWith="100"
+        <addAutoIncrement tableName="user-table" columnName="id" columnDataType="bigint" startWith="200"
                           incrementBy="1"/>
     </changeSet>
     <changeSet id="20240511-role-insertion" author="murat">
@@ -57,6 +57,68 @@
             <column name="password" value="admin" />
         </insert>
     </changeSet>
+
+    <changeSet id="29052024-create-movie-table" author="bekir">
+        <createTable tableName="movie-table">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true"  primaryKeyName="movie_pk" />
+            </column>
+            <column name="name" type="VARCHAR(50)"> </column>
+            <column name="base64image" type="varchar(250)"> </column>
+            <column name="description" type="varchar(250)"> </column>
+        </createTable>
+        <addAutoIncrement tableName="movie-table" columnName="id" columnDataType="bigint" startWith="300" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="29052024-create-cinema-table" author="bekir">
+
+        <createTable tableName="cinema" schemaName="public">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_cinema"/>
+            </column>
+            <column name="cinema_name" type="varchar(50)"/>
+            <column name="cinema_address" type="varchar(250)"/>
+            <column name="cinema_city" type="varchar(50)"/>
+            <column name="cinema_phone" type="varchar(11)"/>
+            <column name="cinema_email" type="varchar(50)"/>
+        </createTable>
+        <addAutoIncrement tableName="cinema" columnName="id" columnDataType="bigint" startWith="500" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="29052024-create-hall-table" author="bekir">
+        <createTable tableName="hall" schemaName="public">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_hall"/>
+            </column>
+            <column name="capacity" type="integer"/>
+            <column name="screen_type" type="varchar(50)"/>
+            <column name="cinema_id" type="bigint"/>
+        </createTable>
+        <addAutoIncrement tableName="hall" columnName="id" columnDataType="bigint" startWith="600" incrementBy="1"/>
+        <addForeignKeyConstraint baseColumnNames="cinema_id" baseTableName="hall"
+                                 constraintName="cinema-hall-fk" referencedColumnNames="id"
+                                 referencedTableName="cinema"/>
+    </changeSet>
+
+    <changeSet id="29052024-create-showing-table" author="bekir">
+        <createTable tableName="showing" schemaName="public">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" primaryKeyName="pk_showing"/>
+            </column>
+            <column name="showtime" type="timestamp"/>
+            <column name="ticket_price" type="double" />
+            <column name="movie_id" type="bigint"/>
+            <column name="hall_id" type="bigint"/>
+        </createTable>
+        <addAutoIncrement tableName="showing" columnName="id" columnDataType="bigint" startWith="700" incrementBy="1"/>
+        <addForeignKeyConstraint baseColumnNames="movie_id" baseTableName="showing"
+                                 constraintName="movie-showing-fk" referencedColumnNames="id"
+                                 referencedTableName="movie-table"/>
+        <addForeignKeyConstraint baseColumnNames="hall_id" baseTableName="showing"
+                                 constraintName="hall-showing-fk" referencedColumnNames="id"
+                                 referencedTableName="hall"/>
+    </changeSet>
+
     <changeSet id="13052024-create-reservation-table" author="bekir">
         <createTable tableName="reservation" schemaName="public">
             <column name="id" type="bigint">
@@ -64,12 +126,9 @@
             </column>
             <column name="seat_info" type="integer[]"/>
             <column name="number_of_people" type="integer"/>
-            <column name="price" type="float"/>
-            <column name="release_date" type="timestamp"/>
             <column name="is_cancel" type="boolean"/>
             <column name="user_id" type="bigint"/>
-            <column name="movie_id" type="bigint"/>
-            <column name="hall_number" type="integer" />
+            <column name="showing_id" type="bigint"/>
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="reservation"
@@ -77,11 +136,17 @@
                                  referencedColumnNames="id" referencedTableName="user-table"
 
         />
-        <addForeignKeyConstraint baseTableName="reservation" baseColumnNames="movie_id"
-                                 referencedTableName="movie-table" referencedColumnNames="id"
-                                 constraintName="movie-reservation-fk"
+        <addForeignKeyConstraint baseTableName="reservation" baseColumnNames="showing_id"
+                                 referencedTableName="showing" referencedColumnNames="id"
+                                 constraintName="showing-reservation-fk"
         />
-        <addAutoIncrement tableName="reservation" columnName="id" columnDataType="bigint" startWith="500" incrementBy="1"/>
+        <addAutoIncrement tableName="reservation" columnName="id" columnDataType="bigint" startWith="400" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="30052024-add-column-hall" author="bekir">
+        <addColumn tableName="hall">
+            <column name="name" type="varchar(50)"> </column>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>
