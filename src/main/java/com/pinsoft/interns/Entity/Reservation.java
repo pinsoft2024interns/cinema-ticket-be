@@ -24,13 +24,8 @@ public class Reservation {
 
     private int numberOfPeople;
 
-    private float price;
-
-    private LocalDateTime releaseDate;
-
     private boolean isCancel;
 
-    private int hallNumber;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -38,9 +33,9 @@ public class Reservation {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name="movie_id")
+    @JoinColumn(name="showing_id")
     @JsonBackReference
-    private Movie movie;
+    private Showing showing;
 
 
 }

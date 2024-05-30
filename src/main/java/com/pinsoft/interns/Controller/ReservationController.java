@@ -1,10 +1,10 @@
 package com.pinsoft.interns.Controller;
 
-import com.pinsoft.interns.DTO.ReservationCancelRequest;
 import com.pinsoft.interns.DTO.ReservationRequest;
-import com.pinsoft.interns.DTO.ReservationUpdateRequest;
+import com.pinsoft.interns.Entity.Hall;
+import com.pinsoft.interns.Entity.Movie;
 import com.pinsoft.interns.Entity.Reservation;
-import com.pinsoft.interns.Exception.ReservationCancellationException;
+import com.pinsoft.interns.Entity.Showing;
 import com.pinsoft.interns.Service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,20 +26,40 @@ public class ReservationController {
     return reservationService.findReservation(id);
     }
 
-
     @PostMapping("/reservation")
     public Reservation createReservation(@RequestBody ReservationRequest reservationRequest) throws Exception {
         return reservationService.addReservation(reservationRequest);
     }
 
-    @PutMapping("reservation/cancel")
-    public Reservation cancelReservation(@RequestBody ReservationUpdateRequest reservationUpdateRequest) throws Exception {
-        return reservationService.cancelReservation(reservationUpdateRequest);
+    @PutMapping("reservation/cancel/{id}")
+    public Reservation cancelReservation(@PathVariable long id) throws Exception {
+        return reservationService.cancelReservation(id);
     }
 
-    @DeleteMapping("reservation/cancel/{id}")
-    public void cancelReservation(@RequestBody ReservationCancelRequest reservationCancelRequest, @PathVariable long id) throws Exception {
-        reservationService.deleteReservation(reservationCancelRequest,id);
+    @DeleteMapping("reservation/{id}")
+    public void deleteReservation(@PathVariable long id) {
+        reservationService.deleteReservation(id);
+    }
+
+
+    @DeleteMapping("reservation/cancel/{id}/{isApproved}")
+    public void reservationCancelConfirm( @PathVariable long id, @PathVariable boolean isApproved)  {
+        reservationService.reservationCancelConfirm(id, isApproved);
+    }
+
+    @GetMapping("reservation/{id}/shwoing")
+    public Showing getShowing(@PathVariable long id) {
+        return reservationService.findShowing(id);
+    }
+
+    @GetMapping("reservation/{id}/movie")
+    public Movie getMovie (@PathVariable long id) {
+        return reservationService.findMovie(id);
+    }
+
+    @GetMapping("reservation/{id}/hall")
+    public Hall getHall (@PathVariable long id) {
+        return reservationService.findHall(id);
     }
 
 }
