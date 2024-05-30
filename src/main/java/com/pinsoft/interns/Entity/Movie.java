@@ -30,5 +30,6 @@ public class Movie {
 
     @OneToMany(mappedBy = "movie")
     @JsonManagedReference
-    private List<Reservation> reservations;
+    private List<Showing> showings;
+
 }
