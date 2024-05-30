@@ -1,15 +1,10 @@
 package com.pinsoft.interns.Service;
 
-import com.pinsoft.interns.DTO.ReservationCancelRequest;
 import com.pinsoft.interns.DTO.ReservationRequest;
-import com.pinsoft.interns.DTO.ReservationUpdateRequest;
-import com.pinsoft.interns.Entity.Movie;
-import com.pinsoft.interns.Entity.Reservation;
-import com.pinsoft.interns.Entity.User;
+import com.pinsoft.interns.Entity.*;
 import com.pinsoft.interns.Exception.MatchException;
 import com.pinsoft.interns.Exception.ReservationCancellationException;
 import com.pinsoft.interns.Exception.SeatFullException;
-import com.pinsoft.interns.Repository.MovieRepository;
 import com.pinsoft.interns.Repository.ReservationRepository;
 import com.pinsoft.interns.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,8 +21,8 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
-    private final MovieRepository movieRepository;
     private final EmailService emailService;
+    private final ShowingService showingService;
 
     public List<Reservation> findAllReservations() {
         return reservationRepository.findAll();
@@ -37,19 +32,21 @@ public class ReservationService {
         Reservation reservation =  reservationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Reservation not found"));
         return reservation;
     }
+    public List<Reservation> findReservationsByShowing(long id) {
+        Showing showing = showingService.findShowing(id);
+        return showing.getReservations();
+    }
 
     public Reservation addReservation(ReservationRequest reservationRequest) throws Exception {
 
         User user = userRepository.findById(reservationRequest.getUserId()).orElseThrow(()-> new  EntityNotFoundException("User not found"));
-        Movie movie = movieRepository.findById(reservationRequest.getMovieId()).orElseThrow(()-> new  EntityNotFoundException("Movie not found"));
+        Showing showing = showingService.findShowing(reservationRequest.getShowingId());
 
         if (reservationRequest.getSeatInfo().size() != reservationRequest.getNumberOfPeople()) {
             throw new MatchException("Number of people and number of seats do not match!");
         }
 
-        List<Reservation> foundReservations = reservationRepository.findAll().stream().filter(
-                element -> element.getMovie().equals(movie) && element.getReleaseDate().equals(reservationRequest.getReleaseDate()) &&
-                            element.getHallNumber() == reservationRequest.getHallNumber()).toList();
+        List<Reservation> foundReservations = findReservationsByShowing(showing.getId());
 
         if (!foundReservations.isEmpty()) {
             for(int seatNumber:reservationRequest.getSeatInfo()) {
@@ -61,34 +58,25 @@ public class ReservationService {
         }
 
             Reservation reservation = new Reservation();
-            reservation.setPrice(reservationRequest.getPrice());
             reservation.setNumberOfPeople(reservationRequest.getNumberOfPeople());
             reservation.setSeatInfo(reservationRequest.getSeatInfo());
-            reservation.setReleaseDate(reservationRequest.getReleaseDate());
-            reservation.setHallNumber(reservationRequest.getHallNumber());
             reservation.setUser(user);
-            reservation.setMovie(movie);
+            reservation.setShowing(showing);
 
             return reservationRepository.save(reservation);
         }
 
 
-    public Reservation cancelReservation(ReservationUpdateRequest reservationUpdateRequest) throws Exception {
+    public Reservation cancelReservation(long id) throws Exception {
 
-        Reservation reservation  = reservationRepository.findById(reservationUpdateRequest.getId()).orElseThrow(()-> new EntityNotFoundException("Reservation not found!"));
-        User user = userRepository.findById(reservationUpdateRequest.getUserId()).orElseThrow(()-> new  EntityNotFoundException("User not found"));
-        Movie movie = movieRepository.findById(reservationUpdateRequest.getMovieId()).orElseThrow(()-> new  EntityNotFoundException("Movie not found"));
+        Reservation reservation  = findReservation(id);
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime releaseDate = reservation.getReleaseDate();
+        LocalDateTime releaseDate = reservation.getShowing().getShowtime();
         Duration duration = Duration.between(now,releaseDate );
         long remainingMinutes = duration.toMinutes();
 
-
-        if (user.getId() != reservation.getUser().getId() || movie.getId() != reservation.getMovie().getId()) {
-            throw new MatchException("User or movie id does not match!");
-        }
-        else if (remainingMinutes < 60){
+        if (remainingMinutes < 60){
             throw new ReservationCancellationException("You must cancel your ticket at least one hour in advance. Your ticket cannot be cancelled!");
         }
         reservation.setCancel(true);
@@ -100,18 +88,37 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public void deleteReservation(ReservationCancelRequest reservationCancelRequest,long id) {
-        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new  EntityNotFoundException("Reservation not found"));
+    public void deleteReservation(long id) {
+        Reservation reservation = findReservation(id);
 
-        if (reservationCancelRequest.isApproved() == false) {
+        reservationRepository.delete(reservation);
+    }
+
+    public void reservationCancelConfirm(long id, boolean isApproved) {
+        Reservation reservation = findReservation(id);
+
+        if (!isApproved) {
             emailService.sendSimpleMessage(reservation.getUser().getEmail(), "Reservation Cancellation",
                     "Your cancellation request for your reservation has not been approved.");
         }
         else{
-            reservationRepository.delete(reservation);
+            deleteReservation(id);
             emailService.sendSimpleMessage(reservation.getUser().getEmail(), "Reservation Cancellation",
                     "Your cancellation request for your reservation has been approved.");
         }
 
+    }
+
+    public Movie findMovie(long id) {
+        Movie movie = findReservation(id).getShowing().getMovie();
+        return movie;
+    }
+    public Hall findHall(long id){
+        Hall hall = findReservation(id).getShowing().getHall();
+        return hall;
+    }
+    public Showing findShowing( long id) {
+        Showing showing = findReservation(id).getShowing();
+        return showing;
     }
 }

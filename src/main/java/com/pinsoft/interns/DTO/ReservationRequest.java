@@ -16,9 +16,6 @@ public class ReservationRequest {
 
     private int numberOfPeople;
     private List<Integer> seatInfo;
-    private float price;
-    private LocalDateTime releaseDate;
     private Long userId;
-    private Long movieId;
-    private int hallNumber;
+    private Long showingId;
 }
