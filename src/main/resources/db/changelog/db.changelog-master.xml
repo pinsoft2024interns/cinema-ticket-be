@@ -149,4 +149,39 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="30052024-create-card-info-table" author="bekir">
+        <createTable tableName="card_info" schemaName="public">
+            <column name="id" type="bigint" >
+                <constraints primaryKey="true" primaryKeyName="pk_card_info"/>
+            </column>
+            <column name="credit_card_number" type="varchar(20)"> </column>
+            <column name="card_holder_name" type="varchar(100)"> </column>
+            <column name="expiration_date" type="varchar(5)"> </column>
+            <column name="cvv" type="varchar(4)"> </column>
+            <column name="user_id" type="bigint"> </column>
+        </createTable>
+        <addAutoIncrement tableName="card_info" columnName="id" columnDataType="bigint" startWith="900" incrementBy="1"/>
+        <addForeignKeyConstraint baseTableName="card_info" baseColumnNames="user_id" constraintName="user-cardInfo-fk"
+                                 referencedTableName="user-table"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
+    <changeSet id="30052024-create-payment-table" author="bekir">
+        <createTable tableName="payment" schemaName="public">
+            <column name="id" type="bigint" >
+                <constraints primaryKey="true" primaryKeyName="pk_payment"/>
+            </column>
+            <column name="reservation_id" type="bigint"> </column>
+            <column name="card_info_id" type="bigint"> </column>
+            <column name="payment_date" type="timestamp"> </column>
+            <column name="amount" type="double"> </column>
+        </createTable>
+        <addAutoIncrement tableName="payment" columnName="id" columnDataType="bigint" startWith="1000" incrementBy="1"/>
+        <addForeignKeyConstraint baseTableName="payment" baseColumnNames="reservation_id" constraintName="reservation-payment-fk"
+                                 referencedTableName="reservation"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="payment" baseColumnNames="card_info_id" constraintName="card-info-payment-fk"
+                                 referencedTableName="card_info"
+                                 referencedColumnNames="id" />
+    </changeSet>
 </databaseChangeLog>
