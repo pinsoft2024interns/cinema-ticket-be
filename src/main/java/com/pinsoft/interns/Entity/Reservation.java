@@ -3,6 +3,7 @@ package com.pinsoft.interns.Entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,5 +38,7 @@ public class Reservation {
     @JsonBackReference
     private Showing showing;
 
+    @OneToOne(mappedBy = "reservation",cascade = CascadeType.ALL)
+    private Payment payment;
 
 }
