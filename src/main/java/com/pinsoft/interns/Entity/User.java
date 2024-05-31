@@ -61,4 +61,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference
     private List<Reservation> reservations;
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference
+    private List<CardInfo> payments;
 }
