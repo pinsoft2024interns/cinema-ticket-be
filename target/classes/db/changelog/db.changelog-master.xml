@@ -184,4 +184,5 @@
                                  referencedTableName="card_info"
                                  referencedColumnNames="id" />
     </changeSet>
+
 </databaseChangeLog>

@@ -4,7 +4,6 @@ import com.pinsoft.interns.DTO.PaymentRequest;
 import com.pinsoft.interns.Entity.CardInfo;
 import com.pinsoft.interns.Entity.Payment;
 import com.pinsoft.interns.Entity.Reservation;
-import com.pinsoft.interns.Entity.Showing;
 import com.pinsoft.interns.Repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,6 +51,10 @@ public class PaymentService {
     }
 
 
+    public Payment findpay(long id) {
+        Reservation reservation = reservationService.findReservation(id);
+        Payment payment = findPaymentByReservation(reservation);
+        return payment;
 
-
+    }
 }
