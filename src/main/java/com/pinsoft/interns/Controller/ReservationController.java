@@ -47,7 +47,7 @@ public class ReservationController {
         reservationService.reservationCancelConfirm(id, isApproved);
     }
 
-    @GetMapping("reservation/{id}/shwoing")
+    @GetMapping("reservation/shwoing/{id}")
     public Showing getShowing(@PathVariable long id) {
         return reservationService.findShowing(id);
     }
